@@ -1,67 +1,45 @@
-const notificationReducer = (state = { type: null, message: null }, action) => {
-  console.log('notification goes here:', action)
+const notificationReducer = (state = '', action) => {
+  // console.log('notification goes here:', action)
   switch (action.type) {
-    case 'SHOW_NOTIFICATION':
-      const { type, message } = action.data
-      return { type, message }
-    case 'CLEAR_MESSAGE':
+    case 'SET_NOTIFICATION':
+      return action.content
+    case 'CLEAR_NOTIFICATION':
       return ''  
     default:
       return state
   }
 }
 
-const showNotificationAction = (notification) => {
-  return { 
-    type: "SHOW_NOTIFICATION", 
-    data: { type: notification.type, 
-    message: notification.message 
+let timeoutIdArray = []
+
+export const setNotification = (content, duration) => {
+  return async (dispatch) => {
+    let timeoutID;
+
+    dispatch(setNotificationAction(content))
+    timeoutID = setTimeout(() => {
+      dispatch(clearNotificationAction())
+    }, duration * 1000);
+    timeoutIdArray.push(timeoutID)
+
+    if (timeoutIdArray.length === 2) {
+      clearTimeout(timeoutIdArray[0])
+      timeoutIdArray.shift()
     }
+  }
+}
+
+const setNotificationAction = (content) => {
+  return {
+    type: 'SET_NOTIFICATION',
+    content
   }
 }
 
 const clearNotificationAction = () => {
   return {
-    type: 'CLEAR_MESSAGE'
-  }
-}
-
-export const setNotificationAction = (notification, notificationTimeout) => {
-  const messageTimeout = notificationTimeout * 1000
-  return dispatch => {
-    dispatch(showNotificationAction(notification))
-    setTimeout(() => dispatch(clearNotificationAction()), messageTimeout)
+    type: 'CLEAR_NOTIFICATION'
   }
 }
 
 export default notificationReducer
-
-
-// export const setMessage = (message) => {
-//   return {
-//     type: 'SET_MESSAGE',
-//     message: message
-//   }
-// }
-
-// export const clearMessage = () => {
-//   return setMessage(null)
-// }
-
-// export const notify = (value, second) => {
-//   return (dispatch) => {
-//     dispatch(setMessage(value))
-//     setTimeout(()=>{dispatch(clearMessage())}, second)
-//   } 
-// }
-
-// const notificationReducer = (state='Hello from messageReducer!', action) => {
-//   switch(action.type) {
-//     case 'SET_MESSAGE':
-//       return action.message
-//     default:
-//       return state
-//   }
-// }
-
-// export default notificationReducer
